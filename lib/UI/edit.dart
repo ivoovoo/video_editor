@@ -179,6 +179,8 @@ class _EditorWidgetState extends State<EditorWidget> {
         return _buildEffectsSelection();
       case 2:
         return _buildTextSettings();
+      case 3:
+        return _buildFiltersSelection();
       default:
         return _buildDefaultContent();
     }
@@ -198,15 +200,15 @@ class _EditorWidgetState extends State<EditorWidget> {
     child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Выбор музыки',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // Здесь можно добавить элементы для выбора музыки
-          Text('Здесь вы можете выбрать музыку.'),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Закрываем диалог
-            },
-            child: Text('Закрыть'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildInkWellButton(0, 'None'),
+              _buildInkWellButton(1, 'TRENDS'),
+              _buildInkWellButton(2, 'CHILL'),
+              _buildInkWellButton(3, 'POPULAR'),
+              _buildInkWellButton(4, 'SOUNDS'),
+            ],
           ),
         ],
       ),
@@ -227,15 +229,15 @@ class _EditorWidgetState extends State<EditorWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Эффекты',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          // Здесь можно добавить элементы для выбора эффектов
-          Text('Здесь вы можете выбрать эффекты.'),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Закрываем диалог
-            },
-            child: Text('Закрыть'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildInkWellButton(0, 'None'),
+              _buildInkWellButton(1, 'TRENDS'),
+              _buildInkWellButton(2, 'CHILL'),
+              _buildInkWellButton(3, 'POPULAR'),
+              _buildInkWellButton(4, 'SOUNDS'),
+            ],
           ),
         ],
       ),
@@ -271,6 +273,35 @@ class _EditorWidgetState extends State<EditorWidget> {
     );
   }
 
+  Widget _buildFiltersSelection() {
+    return Container(
+      width: double.infinity,
+      height: 260,
+      decoration: BoxDecoration(
+        color: Colors.black, // Черный цвет фона контейнера
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20), // Закругление верхнего левого угла
+          topRight: Radius.circular(20), // Закругление верхнего правого угла
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildInkWellButton(0, 'None'),
+              _buildInkWellButton(1, 'Vibrant'),
+              _buildInkWellButton(2, 'Intense'),
+              _buildInkWellButton(3, 'Classy'),
+              _buildInkWellButton(4, 'B&W'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDefaultContent() {
     return Container(
       width: double.infinity,
@@ -298,4 +329,43 @@ class _EditorWidgetState extends State<EditorWidget> {
       ),
     );
   }
+
+  Widget _buildInkWellButton(int index, String label) {
+    return InkWell(
+      onTap: () => _onButtonPressed(index),
+      highlightColor: Colors.transparent, // Remove highlight color
+      splashColor: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.all(5.0),
+        child: _selectedIndex == index
+            ? ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                Color.fromRGBO(255, 185, 81, 1),
+                Color.fromRGBO(206, 80, 224, 1)
+              ],
+            ).createShader(bounds);
+          },
+          child: Text(
+            label,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                // Цвет текста по умолчанию
+                color: Colors.white),
+          ),
+        )
+            : Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Color.fromRGBO(255, 255, 255, 1),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 }
