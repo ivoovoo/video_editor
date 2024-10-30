@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:capcut/Nav_BLoC/nav_event.dart';
+import 'package:capcut/UI/edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../Nav_BLoC/nav_bloc.dart';
+import '../Video_BLoC/video_bloc.dart';
+import '../Video_BLoC/video_event.dart';
 import '../widgets/lists.dart';
 
 class HomeWidget extends StatefulWidget {
@@ -14,20 +20,22 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  // final ImagePicker _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
-  // void _pickVideo() async {
-  //   final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
-  //
-  //   if (mounted && file != null) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute<void>(
-  //         builder: (BuildContext context) => VideoEditor(file: File(file.path)),
-  //       ),
-  //     );
-  //   }
-  // }
+  void _pickVideo() async {
+
+    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+
+    if (mounted && video != null) {
+      context.read<NavigationBloc>().add(GoToScreenB());
+      // MaterialPageRoute<void>(
+      //   builder: (BuildContext context) => EditorWidget(videoPath: video.path),
+      // );
+    }
+  }
+
+
+
 
   int _selectedIndex = 0; // Индекс выбранной кнопки
 
@@ -59,10 +67,8 @@ class _HomeWidgetState extends State<HomeWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: InkWell(
-              // onTap: _pickVideo,
-              onTap: () {
-                context.read<NavigationBloc>().add(GoToScreenB());
-              },
+              onTap: _pickVideo,
+
               child: Container(
                 width: 107,
                 height: 100,
@@ -106,7 +112,6 @@ class _HomeWidgetState extends State<HomeWidget> {
           Expanded(
               flex: 1,
               child: PageView.builder(
-
                 itemCount: listOfImages.length,
                 itemBuilder: (context, index) {
                   return _buildPageItem(index);
@@ -128,7 +133,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Widget _buildListItem(int index) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 15),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -170,7 +175,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                 ),
               ),
               SizedBox(width: 15),
-              Icon(Icons.play_circle_fill_outlined,color: Colors.white,)
+              Icon(
+                Icons.play_circle_fill_outlined,
+                color: Colors.white,
+              )
             ],
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:capcut/Nav_BLoC/nav_bloc.dart';
 import 'package:capcut/UI/project.dart';
+import 'package:capcut/Video_BLoC/video_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,9 +13,13 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: BlocProvider(
-        create: (context) => NavigationBloc(),
-          child: Project()),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => NavigationBloc()),
+          BlocProvider(create: (context) => VideoBloc()),
+        ],
+        child: Project(),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }

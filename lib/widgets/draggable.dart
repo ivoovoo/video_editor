@@ -22,7 +22,7 @@ class _ReorderableColumnDemoState extends State<ReorderableColumnDemo> {
       children: [
         Container(
           width: 2,
-          height: 290, // Задаем высоту полосы
+          height: 290,
           color: Colors.white,
         ),
         Column(

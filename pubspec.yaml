@@ -17,6 +17,14 @@ dependencies:
   flutter_bloc: ^8.0.0
   equatable: ^2.0.0
   video_player: ^2.6.1
+  video_trimmer: ^3.0.1
+  image_picker: ^1.1.2
+  flutter_ffmpeg: ^0.4.2
+  ffmpeg_kit_flutter: ^6.0.3
+  image_picker_ios: ^0.8.12+1
+  path_provider_foundation: ^2.4.0
+  video_player_avfoundation: ^2.6.2
+  video_thumbnail: ^0.5.3
 
 
   cupertino_icons: ^1.0.6

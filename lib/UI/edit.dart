@@ -1,91 +1,129 @@
+import 'dart:io';
+
 import 'package:capcut/widgets/lists.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:video_player/video_player.dart';
 
+import '../Video_BLoC/video_bloc.dart';
+import '../Video_BLoC/video_state.dart';
 import '../widgets/draggable.dart';
 
+class VideoEditorScreen extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: BlocBuilder<VideoBloc, VideoState>(
+        builder: (context, state) {
+          if (state is VideoInitialState) {
+            return const Center(child: Text('Загрузите видео'));
+          } else if (state is VideoLoadedState) {
+            return EditorWidget(videoPath: state.videoPath);
+          }
+          return const CircularProgressIndicator();
+        },
+      ),
+    );
+  }
+}
+
+
+
 class EditorWidget extends StatefulWidget {
-  const EditorWidget({super.key});
+  final String videoPath;
+
+  const EditorWidget({super.key, required this.videoPath});
 
   @override
   State<EditorWidget> createState() => _EditorWidgetState();
 }
 
 class _EditorWidgetState extends State<EditorWidget> {
-  int _selectedIndex = 0; // Индекс выбранной кнопки
+  int _selectIndex = 0;
 
-  void _onButtonPressed(int index) {
+  void _onPressed(int index) {
     setState(() {
-      _selectedIndex = index; // Обновляем индекс выбранной кнопки
+      _selectIndex = index;
     });
   }
 
-  // late VideoPlayerController _controller;
-  // double _sliderValue = 0.0;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller = VideoPlayerController.asset('assets/video.mp4')
-  //     ..initialize().then((_) {
-  //       setState(() {});
-  //       _controller.play();
-  //       _controller.addListener(() {
-  //         setState(() {
-  //           _sliderValue = _controller.value.position.inSeconds.toDouble();
-  //         });
-  //       });
-  //     });
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   _controller.dispose();
-  //   super.dispose();
-  // }
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.videoPath))
+      ..initialize().then((_) {
+        setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
+      body:
+      // Stack(
+      //   children: [
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: BoxDecoration(color: Colors.black),
+            decoration: const BoxDecoration(color: Colors.black),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+
+                _controller.value.isInitialized
+                    ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                )
+                    : Container(),
+                _buildTextOverlayControls(),
+                _buildMusicOverlayControls(),
+                _buildTrimControls(),
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.play_circle_fill_rounded,
                         color: Colors.white,
                       ),
                       Row(
                         children: [
-                          SvgPicture.asset('Assets/Repeate 4.svg'),
-                          SizedBox(
+                          InkWell(
+                            child: SvgPicture.asset('Assets/Repeate 4.svg'),
+                            onTap: () {},
+                          ),
+                          const SizedBox(
                             width: 15,
                           ),
-                          Text(
+                          const Text(
                             '00:06/00:12',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
-                          SvgPicture.asset('Assets/Repeate 3.svg'),
+                          InkWell(
+                            child: SvgPicture.asset('Assets/Repeate 3.svg'),
+                            onTap: () {},
+                          ),
                         ],
                       ),
-                      Icon(
+                      const Icon(
                         Icons.check_box_outline_blank_outlined,
                         color: Colors.white,
                       )
@@ -94,13 +132,13 @@ class _EditorWidgetState extends State<EditorWidget> {
                 ),
                 Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 195,
                     ),
                     ReorderableColumnDemo(),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
@@ -117,28 +155,28 @@ class _EditorWidgetState extends State<EditorWidget> {
                     _buildSelectionButton(4),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
               ],
             ),
           ),
-          Image.asset('Assets/Rectangle 39530.png'),
-          Positioned(
-            top: 50,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SvgPicture.asset('Assets/Group 10975.svg'),
-                  SvgPicture.asset('Assets/download.svg'),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+          // Image.asset('Assets/Rectangle 39530.png'),
+          // Positioned(
+          //   top: 50,
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(15.0),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //       children: [
+          //         SvgPicture.asset('Assets/Group 10975.svg'),
+          //         SvgPicture.asset('Assets/download.svg'),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+        // ],
+      // ),
     );
   }
 
@@ -154,7 +192,7 @@ class _EditorWidgetState extends State<EditorWidget> {
           SvgPicture.asset(listOfSvg[index]),
           Text(
             listOfTitle[index],
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.grey, fontSize: 8, fontWeight: FontWeight.w400),
           ),
         ],
@@ -190,24 +228,24 @@ class _EditorWidgetState extends State<EditorWidget> {
     return Container(
       width: double.infinity,
       height: 260,
-      decoration: BoxDecoration(
-      color: Colors.black, // Черный цвет фона контейнера
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20), // Закругление верхнего левого угла
-        topRight: Radius.circular(20), // Закругление верхнего правого угла
+      decoration: const BoxDecoration(
+        color: Colors.black, // Черный цвет фона контейнера
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20), // Закругление верхнего левого угла
+          topRight: Radius.circular(20), // Закругление верхнего правого угла
+        ),
       ),
-    ),
-    child: Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildInkWellButton(0, 'None'),
-              _buildInkWellButton(1, 'TRENDS'),
-              _buildInkWellButton(2, 'CHILL'),
-              _buildInkWellButton(3, 'POPULAR'),
-              _buildInkWellButton(4, 'SOUNDS'),
+              _buildShowButton(0, 'None'),
+              _buildShowButton(1, 'TRENDS'),
+              _buildShowButton(2, 'CHILL'),
+              _buildShowButton(3, 'POPULAR'),
+              _buildShowButton(4, 'SOUNDS'),
             ],
           ),
         ],
@@ -219,7 +257,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     return Container(
       width: double.infinity,
       height: 260,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.black, // Черный цвет фона контейнера
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20), // Закругление верхнего левого угла
@@ -232,11 +270,11 @@ class _EditorWidgetState extends State<EditorWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildInkWellButton(0, 'None'),
-              _buildInkWellButton(1, 'TRENDS'),
-              _buildInkWellButton(2, 'CHILL'),
-              _buildInkWellButton(3, 'POPULAR'),
-              _buildInkWellButton(4, 'SOUNDS'),
+              _buildShowButton(0, 'None'),
+              _buildShowButton(1, 'TRENDS'),
+              _buildShowButton(2, 'CHILL'),
+              _buildShowButton(3, 'POPULAR'),
+              _buildShowButton(4, 'SOUNDS'),
             ],
           ),
         ],
@@ -248,7 +286,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     return Container(
       width: double.infinity,
       height: 260,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.black, // Черный цвет фона контейнера
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20), // Закругление верхнего левого угла
@@ -258,15 +296,15 @@ class _EditorWidgetState extends State<EditorWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Настройка текста',
+          const Text('Настройка текста',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           // Здесь можно добавить элементы для настройки текста
-          Text('Здесь вы можете настроить текст.'),
+          const Text('Здесь вы можете настроить текст.'),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Закрываем диалог
             },
-            child: Text('Закрыть'),
+            child: const Text('Закрыть'),
           ),
         ],
       ),
@@ -277,7 +315,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     return Container(
       width: double.infinity,
       height: 260,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.black, // Черный цвет фона контейнера
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20), // Закругление верхнего левого угла
@@ -290,11 +328,11 @@ class _EditorWidgetState extends State<EditorWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildInkWellButton(0, 'None'),
-              _buildInkWellButton(1, 'Vibrant'),
-              _buildInkWellButton(2, 'Intense'),
-              _buildInkWellButton(3, 'Classy'),
-              _buildInkWellButton(4, 'B&W'),
+              _buildShowButton(0, 'None'),
+              _buildShowButton(1, 'Vibrant'),
+              _buildShowButton(2, 'Intense'),
+              _buildShowButton(3, 'Classy'),
+              _buildShowButton(4, 'B&W'),
             ],
           ),
         ],
@@ -306,7 +344,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     return Container(
       width: double.infinity,
       height: 260,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.black, // Черный цвет фона контейнера
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20), // Закругление верхнего левого угла
@@ -316,56 +354,95 @@ class _EditorWidgetState extends State<EditorWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('По умолчанию',
+          const Text('По умолчанию',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('Это содержимое по умолчанию.'),
+          const Text('Это содержимое по умолчанию.'),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Закрываем диалог
             },
-            child: Text('Закрыть'),
+            child: const Text('Закрыть'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInkWellButton(int index, String label) {
+  Widget _buildShowButton(int index, String label) {
     return InkWell(
-      onTap: () => _onButtonPressed(index),
+      onTap: () => _onPressed(index),
       highlightColor: Colors.transparent, // Remove highlight color
       splashColor: Colors.transparent,
       child: Container(
-        padding: EdgeInsets.all(5.0),
-        child: _selectedIndex == index
+        padding: const EdgeInsets.all(5.0),
+        child: _selectIndex == index
             ? ShaderMask(
-          shaderCallback: (Rect bounds) {
-            return LinearGradient(
-              colors: [
-                Color.fromRGBO(255, 185, 81, 1),
-                Color.fromRGBO(206, 80, 224, 1)
-              ],
-            ).createShader(bounds);
-          },
-          child: Text(
-            label,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                // Цвет текста по умолчанию
-                color: Colors.white),
-          ),
-        )
+                shaderCallback: (Rect bounds) {
+                  return const LinearGradient(
+                    colors: [
+                      Color.fromRGBO(255, 185, 81, 1),
+                      Color.fromRGBO(206, 80, 224, 1)
+                    ],
+                  ).createShader(bounds);
+                },
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      // Цвет текста по умолчанию
+                      color: Colors.white),
+                ),
+              )
             : Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.normal,
-            color: Color.fromRGBO(255, 255, 255, 1),
-          ),
-        ),
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Color.fromRGBO(255, 255, 255, 1),
+                ),
+              ),
       ),
+    );
+  }
+
+  Widget _buildTextOverlayControls() {
+    return Column(
+      children: [
+        TextField(
+          decoration: const InputDecoration(labelText: 'Введите текст'),
+          onSubmitted: (text) {
+            // Логика для добавления текста на видео
+          },
+        ),
+        // Элементы управления для регулировки времени отображения текста
+      ],
+    );
+  }
+
+  Widget _buildMusicOverlayControls() {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // Логика для выбора музыки
+          },
+          child: const Text('Добавить музыку'),
+        ),
+        // Элементы управления для регулировки времени музыки
+      ],
+    );
+  }
+
+  Widget _buildTrimControls() {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // Логика для обрезки видео
+          },
+          child: const Text('Обрезать видео'),
+        ),
+      ],
     );
   }
 }
 
-
-}

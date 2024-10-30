@@ -16,7 +16,7 @@ class Project extends StatelessWidget {
         if (state is NavigateToScreenA) {
           return const HomeWidget();
         } else if (state is NavigateToScreenB) {
-          return const EditorWidget();
+          return  VideoEditorScreen();
         }
         return const Center(
           child: Text('error'),
